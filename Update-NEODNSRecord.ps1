@@ -1,11 +1,12 @@
 Param ($content)
 
-# Input (move to param or $env:)
+# INPUT (move to param or $env:)
 $myToken      = $env:NEOTOKEN
 $myDomain     = '<Put domain name here>'
 $myDNSname    = '<Put record name here>'
 $myTtl        = 60
 
+# FUNCTIONS
 Function Get-NeoDomain {
   Param (
     [Parameter(Mandatory = $true)][string]$name
@@ -13,8 +14,9 @@ Function Get-NeoDomain {
 
   $myDomainsRaw = Invoke-WebRequest -UseBasicParsing -Uri 'https://api.neostrada.com/api/domains' -Headers @{Authorization = "Bearer $myToken"}
   $myDomains = ($myDomainsRaw.Content | ConvertFrom-Json).results
-  $myDomains | Where-Object -Property description -eq $name
   
+  # Return only domain $name
+  $myDomains | Where-Object -Property description -eq $name
 }
 
 Function Get-NeoDNSRecord {
@@ -26,9 +28,8 @@ Function Get-NeoDNSRecord {
   $myDNSRaw = Invoke-WebRequest -UseBasicParsing  -Uri "https://api.neostrada.com/api/dns/$dns_id" -Headers @{Authorization = "Bearer $myToken"}
   $myDNS = ($myDNSRaw.Content | ConvertFrom-Json).results
 
-  # Return only $name
+  # Return only record $name
   $myDNS | Where-Object -Property name -eq $name
-
 }
 
 Function Update-NeoDNSRecord {
@@ -53,13 +54,12 @@ Function Update-NeoDNSRecord {
 }
 
 
-# Main
-$intDomain = $null
+# MAIN
 $intDomain = Get-NeoDomain -name $myDomain
 
 if ($intDomain.description.Length -ne 0) {
   $intDNS_id = $intDomain.dns_id
-  $intDNSRecord = Get-NeoDNSRecord -dns_id $intDNS_id, -name $myDNSname
+  $intDNSRecord = Get-NeoDNSRecord -dns_id $intDNS_id -name $myDNSname
   $intDNSRecord_id = $intDNSRecord.id
   Update-NeoDNSRecord -dns_id $intDNS_id -recordid $intDNSRecord_id -content $content -ttl $myTTL
 } 
