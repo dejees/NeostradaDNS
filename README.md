@@ -7,3 +7,5 @@ I'm using free SSL Certificates from https://letsencrypt.org/. During the update
 - edit the script to adjust input values
 - .\Update-NEODNSRecord.ps1 -content 'new value for text record here'
 
+# Thanks to
+- https://github.com/djansen1987/NeostradaAPI 
